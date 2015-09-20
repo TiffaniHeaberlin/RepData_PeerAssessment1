@@ -1,25 +1,80 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+Reproducible Research - Peer Assessment 1
+=========================================
+
+##Loading and preprocessing the data 
+```{r echo=TRUE}
+setwd("C:/Users/slussetc/Documents/GitHub/Reproducible_Research/RepData_PeerAssessment1")
+activity<-read.csv("activity.csv")
+```  
+Create a variable for the hours and minutes of day, then create a date time variable to use for plotting.
+```{r}
+intervaltime<- activity$interval
+intervaltime[intervaltime<10]<-paste("0",intervaltime[intervaltime<10],sep="")
+intervaltime[intervaltime<100]<-paste("0",intervaltime[intervaltime<100],sep="")
+intervaltime[intervaltime<1000]<-paste("0",intervaltime[intervaltime<1000],sep="")
+intervaldtime <- strptime(paste(activity$date,intervaltime),format="%Y-%m-%d %H%M")
+```  
+##What is mean total number of steps taken per day?
+Total number of steps taken per day
+```{r echo=TRUE}
+sum(activity$steps,na.rm=TRUE)
+```  
+Histogram of Total Steps taken per day
+```{r}
+hist(activity$steps)
+```  
+
+Mean and Median total steps taken per day
+```{r}
+mean(activity$steps,na.rm=TRUE)
+median(activity$steps,na.rm=TRUE)
+```  
+##What is the average daily activity pattern?
+Time Series plot
+```{r}
+plot(intervaldtime,activity$steps,type="l")
+```  
+
+5-minute interval with maximum number of steps
+```{r}
+intervaldtime[which.max(activity$steps)]
+```  
+##Imputing Missing Values  
+Total number of rows with a missing value
+```{r}
+sum(rowSums(is.na(activity)))
+```  
+Missing values will be imputed with the overall mean for the column
+```{r}
+activity2<-activity
+activity2$steps[is.na(activity2$steps)]<-mean(activity2$steps,na.rm=TRUE)
+```  
+Histogram of newly imputed data
+```{r}
+hist(activity2$steps)
+```  
+
+Mean and Median total number of steps
+```{r}
+mean(activity2$steps)
+median(activity2$steps)
+```  
+The histogram is only slightly changed.  The mean and the median remain the same.  There are simply no NA's since the overall mean was imputed.
+
+##Are there differences in activity between weekends and weekdays?  
+Create a factor variable that is "weekend" or "weekdays"
+```{r}
+daytype<-weekdays(intervaldtime)
+daytype[daytype=='Sunday']<-"Weekend"
+daytype[daytype=='Monday']<-"Weekday"
+daytype[daytype=='Tuesday']<-"Weekday"
+daytype[daytype=='Wednesday']<-"Weekday"
+daytype[daytype=='Thursday']<-"Weekday"
+daytype[daytype=='Friday']<-"Weekday"
+daytype[daytype=='Saturday']<-"Weekend"
+library(lattice)
+xyplot(activity$steps~activity$interval|daytype,,type="l",layout=c(1,2),
+       xlab="Interval",ylab="Number of Steps")
+```  
 
 
-## Loading and preprocessing the data
-
-
-
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
